@@ -10,7 +10,7 @@ templates = Jinja2Templates(directory="templates")
 
 from routes.upload import router as upload_router
 from routes.dbQuery import router as db_router
-from posts import getList
+from posts import getList, getPost
 from db import getDB
 
 # Include the router
@@ -44,9 +44,10 @@ async def getParam(a: int, b:int=5, c:str | None=None): #注意有預設值與�
 def redirect():
 		return RedirectResponse(url="/", status_code=302)
 
-@app.get("/temp/{name1}/{name2}")
-def useTemplate(request:Request, name1:str, name2:str):
-		return templates.TemplateResponse("temp.html", {"request":request,"realName": name1, "nickName": name2})
+@app.get("/read/{id}")
+async def readPost(request:Request, id:int,conn=Depends(getDB)):
+	postDetail = await getPost(conn,id)
+	return templates.TemplateResponse("postDetail.html", {"request":request,"post": postDetail})
 
 
 
