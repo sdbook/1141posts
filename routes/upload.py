@@ -1,23 +1,31 @@
 #處理檔案上傳的範例範例，將route定義放在目錄下的個別檔案中
 #To handle file upload, pip install python-multipart first
-from fastapi import APIRouter,File, UploadFile
+from fastapi import APIRouter,File, UploadFile, Form,Depends
+from fastapi.responses import HTMLResponse,RedirectResponse
+
 import os
 import re
+import posts
+from db import getDB
 
 #使用APIRouter來定義route, 再從main.py中引入
 router = APIRouter()
 
 #簡易版，直接讀檔存檔
 @router.post("/upload")
-async def upload_file(uploadedFile: UploadFile = File(...)):
-
+async def upload_file(
+	uploadedFile: UploadFile = File(...), 
+	msg:str=Form(...),
+	conn=Depends(getDB) ):
+	
 	contents = await uploadedFile.read()
 	
 	#危險!!! 若要使用原檔名，應該先檢查檔名是否安全
 	#參考下面的safeFilename()
-	with open(f"uploads/{uploadedFile.filename}", "wb") as f:
+	with open(f"www/uploads/{uploadedFile.filename}", "wb") as f:
 		f.write(contents)
-	return {"filename": uploadedFile.filename}
+	await posts.setUploadFile(conn, msg,uploadedFile.filename)
+	return RedirectResponse(url=f"/read/{msg}", status_code=302)
 
 
 def safeFilename(filename:str):

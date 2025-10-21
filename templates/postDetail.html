@@ -15,6 +15,14 @@ title: {{post.title}}
 <p>
 content: {{post.content}}
 </p>
-
+<p>
+<A href="/uploads/{{post.filename}}">download {{post.filename}}</a>
+</p>
+	<h2>Upload a File</h2>
+	<form action="/api/upload" method="post" enctype="multipart/form-data">
+		<input type="file" name="uploadedFile">
+		<input type="text" name="msg" value="{{post.id}}" >
+		<input type="submit" value="Upload">
+	</form>
 </body>
 </html>
