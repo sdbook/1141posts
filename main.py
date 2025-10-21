@@ -10,8 +10,7 @@ templates = Jinja2Templates(directory="templates")
 
 from routes.upload import router as upload_router
 from routes.dbQuery import router as db_router
-from posts import getList, getPost
-from db import getDB
+import posts
 
 # Include the router
 app = FastAPI()
@@ -22,7 +21,7 @@ app.include_router(db_router, prefix="/api")
 @app.get("/")
 async def root(request:Request,conn=Depends(getDB)):
 	#產生回應內容的程式
-	myList= await getList(conn)
+	myList= await posts.getList(conn)
 	return templates.TemplateResponse("postList.html", {"request":request,"items": myList})
 
 	#return myList
@@ -46,9 +45,25 @@ def redirect():
 
 @app.get("/read/{id}")
 async def readPost(request:Request, id:int,conn=Depends(getDB)):
-	postDetail = await getPost(conn,id)
+	postDetail = await posts.getPost(conn,id)
 	return templates.TemplateResponse("postDetail.html", {"request":request,"post": postDetail})
 
+@app.get("/delete/{id}")
+async def delPost(request:Request, id:int,conn=Depends(getDB)):
+	postDetail = await posts.deletePost(conn,id)
+	return RedirectResponse(url="/", status_code=302)
+
+@app.post("/addPost")
+async def addPost(
+	request:Request,
+	title: str=Form(...),
+	content:str=Form(...),
+	conn=Depends(getDB)
+	):
+
+	postDetail = await posts.addPost(conn,title,content)
+	print(2)
+	return RedirectResponse(url="/", status_code=302)
 
 
 app.mount("/", StaticFiles(directory="www"))

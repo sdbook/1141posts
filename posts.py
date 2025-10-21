@@ -14,3 +14,16 @@ async def getPost(conn, id):
 		await cur.execute(sql,(id,))
 		row = await cur.fetchone()
 		return row
+
+async def deletePost(conn, id):
+	async with conn.cursor() as cur:
+		sql="delete from posts where id=%s;"
+		await cur.execute(sql,(id,))
+		return True
+
+async def addPost(conn, title, content):
+	async with conn.cursor() as cur:
+		sql="insert into posts (title,content) values (%s,%s);"
+		await cur.execute(sql,(title,content))
+		return True
+
