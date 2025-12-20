@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- 
+source: https://gist.github.com/tanmaykm/5111225 
+-->
+<html>
+  <head>
+		<title>Websocket Demo</title>
+		<style>
+			#messages {
+				border: dotted 1px #444444;
+				font: 12px arial,sans-serif;
+			}
+			
+			#messages > p {
+				padding: 0px;
+				margin: 0px;
+			}
+		</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<script>
+		 	var s;
+				
+			var messages;
+			var form;
+			var inputBox;
+			
+			function log_msg(msg) {
+				console.log(msg);
+			}
+			
+			function doInit() {
+				try {
+					var host = "ws://localhost:4545/";
+					/*if(window.location.hostname) {
+						host = "ws://" + window.location.hostname + ":4545/";
+					}*/
+					
+					s = new WebSocket(host);
+					
+					s.onopen = function (e) { log_msg("connected..."); };
+					s.onclose = function (e) { log_msg("connection closed."); };
+					s.onerror = function (e) { log_msg("connection error."); };
+					s.onmessage = function (e) { 
+						log_msg("message: " + e.data); 
+						strs = e.data.split(',');
+						x=parseInt(strs[0]);
+						y=parseInt(strs[1]);
+						box=strs[2];
+						setBoxPosition(y,x,box)
+					};
+				} catch (ex) {
+					log_msg("connection exception:" + ex);
+				}
+			}
+			
+			
+		function syncMousePosition(x,y,box) {
+			s.send(x+","+y+","+box);
+		}
+		
+		function setBoxPosition(topP, leftP,boxID) {
+			//let currentBox=document.getElementById('box').value;
+			w=$("#"+boxID).parent().width();
+			h=$("#"+boxID).parent().height();
+			if (topP < 0) topP=0;
+			if (leftP < 0) leftP=0;
+			if (leftP > w) leftP=w;
+			if (topP > h) topP=h;
+
+			$("#"+boxID).css({top: topP, left: leftP, position:'absolute'});			
+		}
+		
+$(function(){
+	$(document).mousemove(function(e){
+		//var offset = $("#box").offset();
+		//leftP= e.pageX - offset.left,
+		//topP= e.pageY - offset.top
+		let box=$("#box").val();
+		syncMousePosition(e.pageX,e.pageY,box);
+	});
+});
+
+
+		</script>		
+	</head>
+<body onload="doInit()">
+<select id="box">
+<option value="box0">red</option>
+<option value="box1">green</option>
+</select>
+	<div  style="width:100%;height:500px;border-style: solid;position: 'relative';">
+	<div id="box0" style="width:10px;height:10px;background-color:red;top:10px;left:10px;"></div>
+<div id="box1" style="width:10px;height:10px;background-color:green;top:10px;left:10px;"></div>
+	</div>
+</body>
+</html>
