@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastAPI Template</title>
+  </head>
+  <body>
+<h1>文章列表</h1>
+<hr/>
+<ol>
+	{% for item in items %}
+	<li>
+		{{item.id}}:{{ item.title }}
+	</li>
+	{% endfor %}
+</ol>
+<hr/>
+<h1>Hi {{user}}</h1>You are logged in. 
+	<a href='/logout'>logout</a> <br/>
+	新增資料:
+	<form method="post" action="/addPost">
+		<input type="text" name="title" />
+		<input type="submit" />		
+	</form>
+</body>
+</html>

@@ -30,18 +30,18 @@ async def root(request:Request,conn=Depends(getDB),user:str=Depends(get_login_us
 		#not login, redirect to loginForm
 		return RedirectResponse(url="/loginForm.html", status_code=302)
 	
-	#return RedirectResponse(url="/homeVue.html", status_code=302)
 	async with conn.cursor() as cur:
 		sql="select id,title from posts order by id desc;"
 		await cur.execute(sql)
 		rows = await cur.fetchall()
 
+	#render the HTML 
 	html="<hr/><ol>"
 	for row in rows:
 		html += f"<li>{row['title']}</li>"
 	html += "</ol><hr />"
 
-
+	#add the add-post Form
 	html += f"""<h1>Hi {user}</h1>You are logged in. 
 	<a href='/logout'>logout</a> <br/>
 	新增資料:
@@ -51,7 +51,7 @@ async def root(request:Request,conn=Depends(getDB),user:str=Depends(get_login_us
 	</form>
 	"""
 	return HTMLResponse(html)
-	#return templates.TemplateResponse("postList.html", {"request":request,"items": myList,"role": myRole})
+	#return templates.TemplateResponse("postListTest.html", {"request":request,"items": rows,"user":user})
 
 @app.post("/addPost")
 async def addPost(
